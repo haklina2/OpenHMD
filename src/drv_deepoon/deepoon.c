@@ -72,7 +72,7 @@ static void set_coordinate_frame(rift_priv* priv, rift_coordinate_frame coordfra
 	}
 
 	// read the state again, set the hw_coordinate_frame to match what
-	// the hardware actually is set to just incase it doesn't stick.
+	// the hardware actually is set to, just in case it doesn't stick.
 	size = get_feature_report(priv, RIFT_CMD_SENSOR_CONFIG, buf);
 	if(size <= 0){
 		LOGW("could not set coordinate frame");
@@ -278,8 +278,8 @@ static void get_device_list(ohmd_driver* driver, ohmd_device_list* list)
 
 	while (cur_dev) {
 		// This is needed because DeePoon share USB IDs with the Nolo.
-		if (wcscmp(cur_dev->manufacturer_string, L"DeePoon VR, Inc.")==0 &&
-			wcscmp(cur_dev->product_string, L"DeePoon Tracker Device")==0) {
+		if (ohmd_wstring_match(cur_dev->manufacturer_string, L"DeePoon VR, Inc.") &&
+			ohmd_wstring_match(cur_dev->product_string, L"DeePoon Tracker Device")) {
 
 			ohmd_device_desc* desc = &list->devices[list->num_devices++];
 

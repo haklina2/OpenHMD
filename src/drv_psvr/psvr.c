@@ -39,14 +39,14 @@ typedef struct {
 
 } psvr_priv;
 
-void accel_from_psvr_vec(const int16_t* smp, vec3f* out_vec)
+static void accel_from_psvr_vec(const int16_t* smp, vec3f* out_vec)
 {
 	out_vec->x = (float)smp[1] *  (9.81 / 16384);
 	out_vec->y = (float)smp[0] *  (9.81 / 16384);
 	out_vec->z = (float)smp[2] * -(9.81 / 16384);
 }
 
-void gyro_from_psvr_vec(const int16_t* smp, vec3f* out_vec)
+static void gyro_from_psvr_vec(const int16_t* smp, vec3f* out_vec)
 {
 	out_vec->x = (float)smp[1] * 0.00105f;
 	out_vec->y = (float)smp[0] * 0.00105f;
@@ -284,7 +284,7 @@ static ohmd_device* open_device(ohmd_driver* driver, ohmd_device_desc* desc)
 	priv->base.properties.lens_sep = 0.0630999878f;
 	priv->base.properties.lens_vpos = 0.0394899882f;
 
-	priv->base.properties.fov = DEG_TO_RAD(103.57f); //TODO: Confirm exact mesurements
+	priv->base.properties.fov = DEG_TO_RAD(103.57f); //TODO: Confirm exact measurements
 	priv->base.properties.ratio = (1920.0f / 1080.0f) / 2.0f;
 
 	priv->base.properties.control_count = 3;

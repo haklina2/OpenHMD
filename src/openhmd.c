@@ -31,6 +31,10 @@ OHMD_APIENTRYDLL ohmd_context* OHMD_APIENTRY ohmd_ctx_create(void)
 	ctx->drivers[ctx->num_drivers++] = ohmd_create_oculus_rift_drv(ctx);
 #endif
 
+#if DRIVER_OCULUS_RIFT_S
+	ctx->drivers[ctx->num_drivers++] = ohmd_create_oculus_rift_s_drv(ctx);
+#endif
+
 #if DRIVER_DEEPOON
 	ctx->drivers[ctx->num_drivers++] = ohmd_create_deepoon_drv(ctx);
 #endif
@@ -53,6 +57,10 @@ OHMD_APIENTRYDLL ohmd_context* OHMD_APIENTRY ohmd_ctx_create(void)
 
 #if DRIVER_XGVR
 	ctx->drivers[ctx->num_drivers++] = ohmd_create_xgvr_drv(ctx);
+#endif
+
+#if DRIVER_VRTEK
+	ctx->drivers[ctx->num_drivers++] = ohmd_create_vrtek_drv(ctx);
 #endif
 
 #if DRIVER_ANDROID
@@ -384,7 +392,7 @@ OHMD_APIENTRYDLL int OHMD_APIENTRY ohmd_device_getf(ohmd_device* device, ohmd_fl
 	return ret;
 }
 
-int ohmd_device_setf_unp(ohmd_device* device, ohmd_float_value type, const float* in)
+static int ohmd_device_setf_unp(ohmd_device* device, ohmd_float_value type, const float* in)
 {
 	switch(type){
 	case OHMD_EYE_IPD:
@@ -482,7 +490,7 @@ OHMD_APIENTRYDLL int OHMD_APIENTRY ohmd_device_seti(ohmd_device* device, ohmd_in
 }
 
 
-int ohmd_device_set_data_unp(ohmd_device* device, ohmd_data_value type, const void* in)
+static int ohmd_device_set_data_unp(ohmd_device* device, ohmd_data_value type, const void* in)
 {
     switch(type){
     case OHMD_DRIVER_DATA:

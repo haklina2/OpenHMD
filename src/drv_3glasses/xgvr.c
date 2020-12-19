@@ -42,7 +42,7 @@ typedef struct {
     char *desc;
     int sku;
 } xgvr_platform_sku_t;
-xgvr_platform_sku_t platform_sku[] = {
+static const xgvr_platform_sku_t platform_sku[] = {
     {
         0x2b1c, 0x0200, "3Glasses-D3V1", PLATFORM_SKU_D3V1_M41V2,
     },
@@ -86,11 +86,6 @@ static int _get_feature_report(xgvr_priv* priv, unsigned char report_id, unsigne
     memset(buf, 0, FEATURE_BUFFER_SIZE);
     buf[0] = report_id;
     return hid_get_feature_report(priv->hid_handle, buf, FEATURE_BUFFER_SIZE);
-}
-
-static int _send_feature_report(xgvr_priv* priv, const unsigned char *data, size_t length)
-{
-    return hid_send_feature_report(priv->hid_handle, data, length);
 }
 
 static void _priv_update_firmware_version(xgvr_priv* priv)

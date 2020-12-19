@@ -5,6 +5,16 @@ project(openhmd C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# choose glvnd over legacy gl when available
+if (POLICY CMP0072)
+	cmake_policy (SET CMP0072 NEW)
+endif(POLICY CMP0072)
+
+# policy to honor C_VISIBILITY_PRESET hidden, only exporting public ohmd api
+if (POLICY CMP0063)
+	cmake_policy(SET CMP0063 NEW)
+endif(POLICY CMP0063)
+
 set(LIB_VERSION_MAJOR 0)
 set(LIB_VERSION_MINOR 1)
 set(LIB_VERSION_PATCH 0)
@@ -26,12 +36,14 @@ set(openhmd_source_files
 )
 
 option(OPENHMD_DRIVER_OCULUS_RIFT "Oculus Rift DK1 and DK2" ON)
+option(OPENHMD_DRIVER_OCULUS_RIFT_S "Oculus Rift S" ON)
 option(OPENHMD_DRIVER_DEEPOON "Deepoon E2" ON)
 option(OPENHMD_DRIVER_WMR "Windows Mixed Reality" ON)
 option(OPENHMD_DRIVER_PSVR "Sony PSVR" OFF)
 option(OPENHMD_DRIVER_HTC_VIVE "HTC Vive" ON)
 option(OPENHMD_DRIVER_NOLO "NOLO VR CV1" ON)
 option(OPENHMD_DRIVER_XGVR "3Glasses HMD" ON)
+option(OPENHMD_DRIVER_VRTEK "VR-Tek HMD" ON)
 option(OPENHMD_DRIVER_EXTERNAL "External sensor driver" ON)
 option(OPENHMD_DRIVER_ANDROID "General Android driver" OFF)
 
@@ -41,7 +53,9 @@ option(OPENHMD_EXAMPLE_SDL "SDL OpenGL test (outdated)" OFF)
 if(OPENHMD_DRIVER_OCULUS_RIFT)
 	set(openhmd_source_files ${openhmd_source_files}
 	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift/rift.c
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift/rift-hmd-radio.c
 	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift/packet.c
+	${CMAKE_CURRENT_LIST_DIR}/src/ext_deps/nxjson.c
 	)
 	add_definitions(-DDRIVER_OCULUS_RIFT)
 
@@ -49,6 +63,22 @@ if(OPENHMD_DRIVER_OCULUS_RIFT)
 	include_directories(${HIDAPI_INCLUDE_DIRS})
 	set(LIBS ${LIBS} ${HIDAPI_LIBRARIES})
 endif(OPENHMD_DRIVER_OCULUS_RIFT)
+
+if(OPENHMD_DRIVER_OCULUS_RIFT_S)
+	set(openhmd_source_files ${openhmd_source_files}
+  ${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift_s/rift-s.c
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift_s/rift-s-controller.c
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift_s/rift-s-firmware.c
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift_s/rift-s-protocol.c
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_oculus_rift_s/rift-s-radio.c
+	${CMAKE_CURRENT_LIST_DIR}/src/ext_deps/nxjson.c
+	)
+  add_definitions(-DDRIVER_OCULUS_RIFT_S)
+
+	find_package(HIDAPI REQUIRED)
+	include_directories(${HIDAPI_INCLUDE_DIRS})
+	set(LIBS ${LIBS} ${HIDAPI_LIBRARIES})
+endif(OPENHMD_DRIVER_OCULUS_RIFT_S)
 
 if(OPENHMD_DRIVER_DEEPOON)
 	set(openhmd_source_files ${openhmd_source_files}
@@ -66,6 +96,7 @@ if(OPENHMD_DRIVER_WMR)
 	set(openhmd_source_files ${openhmd_source_files}
 	${CMAKE_CURRENT_LIST_DIR}/src/drv_wmr/wmr.c
 	${CMAKE_CURRENT_LIST_DIR}/src/drv_wmr/packet.c
+	${CMAKE_CURRENT_LIST_DIR}/src/ext_deps/nxjson.c
 	)
 	add_definitions(-DDRIVER_WMR)
 
@@ -124,6 +155,18 @@ if(OPENHMD_DRIVER_XGVR)
 	set(LIBS ${LIBS} ${HIDAPI_LIBRARIES})
 endif(OPENHMD_DRIVER_XGVR)
 
+if(OPENHMD_DRIVER_VRTEK)
+	set(openhmd_source_files ${openhmd_source_files}
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_vrtek/vrtek.c
+	${CMAKE_CURRENT_LIST_DIR}/src/drv_vrtek/packet.c
+	)
+	add_definitions(-DDRIVER_VRTEK)
+
+	find_package(HIDAPI REQUIRED)
+	include_directories(${HIDAPI_INCLUDE_DIRS})
+	set(LIBS ${LIBS} ${HIDAPI_LIBRARIES})
+endif(OPENHMD_DRIVER_VRTEK)
+
 if (OPENHMD_DRIVER_EXTERNAL)
 	set(openhmd_source_files ${openhmd_source_files}
 	${CMAKE_CURRENT_LIST_DIR}/src/drv_external/external.c
@@ -166,6 +209,9 @@ if (BUILD_BOTH_STATIC_SHARED_LIBS)
 
 	set(TARGETS "openhmd-shared" "openhmd-static")
 
+	set_target_properties(openhmd-shared PROPERTIES C_VISIBILITY_PRESET hidden)
+	set_target_properties(openhmd-static PROPERTIES C_VISIBILITY_PRESET hidden)
+
 else ()
 
 	# Static or Shared
@@ -175,6 +221,7 @@ else ()
 
 	set(TARGETS "openhmd")
 
+	set_target_properties(openhmd PROPERTIES C_VISIBILITY_PRESET hidden)
 endif ()
 
 foreach(target ${TARGETS})

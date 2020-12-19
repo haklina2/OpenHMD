@@ -16,23 +16,27 @@ option(
 	type: 'array',
 	choices: [
 		'rift',
+		'rift-s',
 		'deepoon',
 		#'psvr', disabled for 0.3
 		'vive',
 		'nolo',
 		'wmr',
 		'xgvr',
+		'vrtek',
 		'external',
 		'android',
 	],
 	value: [
 		'rift',
+		'rift-s',
 		'deepoon',
 		#'psvr', disabled for 0.3
 		'vive',
 		'nolo',
 		'wmr',
 		'xgvr',
+		'vrtek',
 		'external',
 	],
 )
@@ -46,4 +50,10 @@ option(
 		'hidraw'
 	],
 	value: 'auto',
+)
+
+option(
+	'tests',
+	type: 'boolean',
+	value: true,
 )
